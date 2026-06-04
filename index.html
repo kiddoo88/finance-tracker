@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Finance">
@@ -143,6 +143,19 @@
   .add-cat-type button { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: none; color: var(--text-2); font-size: 13px; font-weight: 500; cursor: pointer; }
   .add-cat-type button.active-inc { background: var(--green-bg); color: var(--green); border-color: var(--green); }
   .add-cat-type button.active-exp { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+
+  /* ===== BUDGET ===== */
+  .budget-row { padding: 11px 0; border-bottom: 0.5px solid var(--border); }
+  .budget-row:last-child { border-bottom: none; }
+  .budget-info { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+  .budget-cat-name { font-size: 14px; font-weight: 500; }
+  .budget-meta { font-size: 12px; color: var(--text-3); }
+  .budget-bar-bg { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 6px; }
+  .budget-bar-fill { height: 6px; border-radius: 3px; transition: width .4s; min-width: 2px; }
+  .budget-input-row { display: flex; align-items: center; gap: 6px; }
+  .budget-label { font-size: 11px; color: var(--text-3); flex-shrink: 0; text-transform: uppercase; letter-spacing: .04em; }
+  .budget-input { flex: 1; padding: 6px 10px; border-radius: 8px; border: 0.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; font-family: inherit; -webkit-appearance: none; }
+  .budget-input:focus { outline: none; border-color: var(--green); }
 </style>
 </head>
 <body>
@@ -164,8 +177,8 @@
 <!-- Add section -->
 <div class="section active" id="sec-add">
   <div class="type-toggle">
-    <button class="type-btn inc active" id="btn-inc" onclick="setType('income')">＋ Income</button>
-    <button class="type-btn exp" id="btn-exp" onclick="setType('expense')">－ Expense</button>
+    <button class="type-btn inc" id="btn-inc" onclick="setType('income')">＋ Income</button>
+    <button class="type-btn exp active" id="btn-exp" onclick="setType('expense')">－ Expense</button>
   </div>
   <div class="card">
     <label class="form-label">Amount (฿)</label>
@@ -187,7 +200,7 @@
       <label class="form-label">Note</label>
       <input class="form-input" type="text" id="fNote" placeholder="Optional">
     </div>
-    <button class="submit-btn inc" id="submitBtn" onclick="submitEntry()">Add Income</button>
+    <button class="submit-btn exp" id="submitBtn" onclick="submitEntry()">Add Expense</button>
   </div>
 </div>
 
@@ -205,6 +218,8 @@
   <div class="sum-grid" id="sumGrid"></div>
   <div class="section-hdr" style="margin-top:16px"><span class="section-hdr-label">By category</span></div>
   <div class="card" id="catCard"></div>
+  <div class="section-hdr" style="margin-top:16px"><span class="section-hdr-label">Budget</span></div>
+  <div class="card" id="budgetCard"></div>
   <button class="export-btn" onclick="exportCSV()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18"><path d="M12 16L7 11M12 16L17 11M12 16V4M6 20H18" stroke-linecap="round" stroke-linejoin="round"/></svg>
     Export CSV
@@ -322,7 +337,8 @@ const DEFAULT_CATS = {
 const CAT_ICONS = { Salary:'💼', Freelance:'💻', Investment:'📈', Business:'🏢', Food:'🍜', Transport:'🚗', Medical:'🏥', Shopping:'🛍', Utilities:'💡', Entertainment:'🎬', Other:'📌' };
 
 let CATS = loadCats();
-let currentType = 'income';
+let budgets = loadBudgets();
+let currentType = 'expense';
 let editType = 'income';
 let allEntries = [];
 let apiUrl = localStorage.getItem('fin_api_url') || '';
@@ -337,7 +353,20 @@ function loadCats() {
 }
 function saveCats() { localStorage.setItem('fin_cats', JSON.stringify(CATS)); }
 
+function loadBudgets() {
+  try { const s = localStorage.getItem('fin_budgets'); if (s) return JSON.parse(s); } catch(e) {}
+  return {};
+}
+function saveBudgets() { localStorage.setItem('fin_budgets', JSON.stringify(budgets)); }
+function setBudget(cat, val) {
+  const n = parseFloat(val) || 0;
+  if (n <= 0) delete budgets[cat]; else budgets[cat] = n;
+  saveBudgets();
+  renderSummary();
+}
+
 // Init
+document.body.style.overflow = 'hidden'; // Add tab is default — no scroll
 document.getElementById('fDate').value = todayStr();
 document.getElementById('apiUrl').value = apiUrl;
 populateCats('fCat', currentType);
@@ -619,15 +648,42 @@ function renderSummary() {
   const sorted = Object.entries(expCats).sort((a,b) => b[1]-a[1]);
   const maxVal = sorted[0]?.[1] || 1;
   const catCard = document.getElementById('catCard');
-  if (!sorted.length) { catCard.innerHTML = '<div class="empty">No expense data</div>'; return; }
-  catCard.innerHTML = sorted.map(([cat, val]) => `
-    <div class="cat-row">
-      <div class="cat-bar-wrap">
-        <div class="cat-name">${cat}</div>
-        <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${Math.round(val/maxVal*100)}%"></div></div>
+  if (!sorted.length) { catCard.innerHTML = '<div class="empty">No expense data</div>'; }
+  else {
+    catCard.innerHTML = sorted.map(([cat, val]) => `
+      <div class="cat-row">
+        <div class="cat-bar-wrap">
+          <div class="cat-name">${cat}</div>
+          <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${Math.round(val/maxVal*100)}%"></div></div>
+        </div>
+        <div class="cat-amt">${fmt(val)}</div>
+      </div>`).join('');
+  }
+
+  // Budget section
+  const budgetCats = [...new Set([...Object.keys(expCats), ...Object.keys(budgets)])].sort();
+  const budgetCard = document.getElementById('budgetCard');
+  if (!budgetCats.length) { budgetCard.innerHTML = '<div class="empty">No expense data</div>'; return; }
+  budgetCard.innerHTML = budgetCats.map(cat => {
+    const spent = expCats[cat] || 0;
+    const bgt = budgets[cat] || 0;
+    const pct = bgt > 0 ? Math.min(spent / bgt * 100, 100) : 0;
+    const over = bgt > 0 && spent > bgt;
+    const barColor = over ? 'var(--red)' : 'var(--green)';
+    const metaText = bgt > 0 ? `${fmt(spent)} / ${fmt(bgt)}` : fmt(spent);
+    const metaColor = over ? 'var(--red)' : 'var(--text-3)';
+    return `<div class="budget-row">
+      <div class="budget-info">
+        <span class="budget-cat-name">${cat}</span>
+        <span class="budget-meta" style="color:${metaColor}">${metaText}</span>
       </div>
-      <div class="cat-amt">${fmt(val)}</div>
-    </div>`).join('');
+      ${bgt > 0 ? `<div class="budget-bar-bg"><div class="budget-bar-fill" style="width:${pct.toFixed(1)}%;background:${barColor}"></div></div>` : ''}
+      <div class="budget-input-row">
+        <span class="budget-label">Budget ฿</span>
+        <input class="budget-input" type="number" inputmode="decimal" placeholder="–" value="${bgt || ''}" onchange="setBudget('${cat}',this.value)" onblur="setBudget('${cat}',this.value)">
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function exportCSV() {
@@ -647,6 +703,7 @@ function switchTab(t) {
     document.getElementById('sec-'+s).classList.toggle('active', s===t);
     document.getElementById('nav-'+s).classList.toggle('active', s===t);
   });
+  document.body.style.overflow = t === 'add' ? 'hidden' : '';
   if (t==='entries') renderEntries();
   if (t==='summary') renderSummary();
   if (t==='config') renderCatManager();
