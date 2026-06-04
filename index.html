@@ -144,6 +144,12 @@
   .add-cat-type button.active-inc { background: var(--green-bg); color: var(--green); border-color: var(--green); }
   .add-cat-type button.active-exp { background: var(--red-bg); color: var(--red); border-color: var(--red); }
 
+  /* ===== RANGE TOGGLE ===== */
+  .range-toggle { display: flex; gap: 4px; margin-top: 12px; background: var(--card); border-radius: 10px; padding: 4px; border: 0.5px solid var(--border); }
+  .range-btn { flex: 1; padding: 7px 2px; border-radius: 7px; border: none; background: none; font-size: 13px; font-weight: 500; color: var(--text-2); cursor: pointer; transition: all .15s; }
+  .range-btn.active { background: var(--green); color: white; font-weight: 600; }
+  .range-label { font-size: 12px; color: var(--text-3); text-align: center; margin-top: 6px; margin-bottom: 2px; min-height: 16px; }
+
   /* ===== BUDGET ===== */
   .budget-row { padding: 11px 0; border-bottom: 0.5px solid var(--border); }
   .budget-row:last-child { border-bottom: none; }
@@ -215,6 +221,14 @@
 
 <!-- Summary section -->
 <div class="section" id="sec-summary">
+  <div class="range-toggle">
+    <button class="range-btn" onclick="setSummaryRange('day',this)">Day</button>
+    <button class="range-btn" onclick="setSummaryRange('week',this)">Week</button>
+    <button class="range-btn active" onclick="setSummaryRange('month',this)">Month</button>
+    <button class="range-btn" onclick="setSummaryRange('year',this)">Year</button>
+    <button class="range-btn" onclick="setSummaryRange('ytd',this)">YTD</button>
+  </div>
+  <div class="range-label" id="rangeLabel"></div>
   <div class="sum-grid" id="sumGrid"></div>
   <div class="section-hdr" style="margin-top:16px"><span class="section-hdr-label">By category</span></div>
   <div class="card" id="catCard"></div>
@@ -343,6 +357,64 @@ let editType = 'income';
 let allEntries = [];
 let apiUrl = localStorage.getItem('fin_api_url') || '';
 let currentMonth = '';
+let summaryRange = 'month';
+
+function getSummaryEntries() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const toStr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const today = toStr(now);
+  let from, to;
+  switch (summaryRange) {
+    case 'day':
+      from = to = today; break;
+    case 'week': {
+      const dow = now.getDay(); // 0=Sun
+      const mon = new Date(now); mon.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
+      const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+      from = toStr(mon); to = toStr(sun); break;
+    }
+    case 'month':
+      from = `${now.getFullYear()}-${pad(now.getMonth()+1)}-01`; to = today; break;
+    case 'year':
+      from = `${now.getFullYear()}-01-01`; to = `${now.getFullYear()}-12-31`; break;
+    case 'ytd':
+      from = `${now.getFullYear()}-01-01`; to = today; break;
+    default:
+      from = '0000-01-01'; to = '9999-12-31';
+  }
+  return allEntries.filter(e => {
+    const d = (e.Date || e.date || '').slice(0,10);
+    return d >= from && d <= to;
+  });
+}
+
+function getRangeLabel() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const toStr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const today = toStr(now);
+  switch (summaryRange) {
+    case 'day':  return today;
+    case 'week': {
+      const dow = now.getDay();
+      const mon = new Date(now); mon.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
+      const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+      return `${toStr(mon)} – ${toStr(sun)}`;
+    }
+    case 'month': return `${now.getFullYear()}-${pad(now.getMonth()+1)}-01 – ${today}`;
+    case 'year':  return String(now.getFullYear());
+    case 'ytd':   return `${now.getFullYear()}-01-01 – ${today}`;
+  }
+  return '';
+}
+
+function setSummaryRange(r, btn) {
+  summaryRange = r;
+  document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderSummary();
+}
 
 function loadCats() {
   try {
@@ -631,7 +703,9 @@ function renderEntries() {
 }
 
 function renderSummary() {
-  const entries = filteredEntries(document.getElementById('monthPick').value);
+  const labelEl = document.getElementById('rangeLabel');
+  if (labelEl) labelEl.textContent = getRangeLabel();
+  const entries = getSummaryEntries();
   const inc = entries.filter(e => (e.Type||e.type)==='income').reduce((a,e) => a+Number(e.Amount||e.amount||0), 0);
   const exp = entries.filter(e => (e.Type||e.type)==='expense').reduce((a,e) => a+Number(e.Amount||e.amount||0), 0);
   const bal = inc - exp;
