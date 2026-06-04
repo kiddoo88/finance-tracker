@@ -118,6 +118,13 @@
   .config-note b { color: var(--text-2); }
   .export-btn { width: 100%; margin-top: 14px; padding: 13px; border-radius: 12px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
+  /* Period selector */
+  .period-bar { display: flex; gap: 6px; margin-top: 14px; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .period-bar::-webkit-scrollbar { display: none; }
+  .period-btn { flex-shrink: 0; padding: 7px 16px; border-radius: 20px; border: 0.5px solid var(--border); background: var(--card); color: var(--text-2); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; white-space: nowrap; }
+  .period-btn.active { background: var(--green); color: white; border-color: var(--green); }
+  .period-label { font-size: 12px; color: var(--text-3); text-align: center; margin-top: 6px; margin-bottom: 2px; }
+
   /* ===== MODAL ===== */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 150; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity .2s; }
   .modal-overlay.open { opacity: 1; pointer-events: all; }
@@ -143,25 +150,6 @@
   .add-cat-type button { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: none; color: var(--text-2); font-size: 13px; font-weight: 500; cursor: pointer; }
   .add-cat-type button.active-inc { background: var(--green-bg); color: var(--green); border-color: var(--green); }
   .add-cat-type button.active-exp { background: var(--red-bg); color: var(--red); border-color: var(--red); }
-
-  /* ===== RANGE TOGGLE ===== */
-  .range-toggle { display: flex; gap: 4px; margin-top: 12px; background: var(--card); border-radius: 10px; padding: 4px; border: 0.5px solid var(--border); }
-  .range-btn { flex: 1; padding: 7px 2px; border-radius: 7px; border: none; background: none; font-size: 13px; font-weight: 500; color: var(--text-2); cursor: pointer; transition: all .15s; }
-  .range-btn.active { background: var(--green); color: white; font-weight: 600; }
-  .range-label { font-size: 12px; color: var(--text-3); text-align: center; margin-top: 6px; margin-bottom: 2px; min-height: 16px; }
-
-  /* ===== BUDGET ===== */
-  .budget-row { padding: 11px 0; border-bottom: 0.5px solid var(--border); }
-  .budget-row:last-child { border-bottom: none; }
-  .budget-info { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
-  .budget-cat-name { font-size: 14px; font-weight: 500; }
-  .budget-meta { font-size: 12px; color: var(--text-3); }
-  .budget-bar-bg { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 6px; }
-  .budget-bar-fill { height: 6px; border-radius: 3px; transition: width .4s; min-width: 2px; }
-  .budget-input-row { display: flex; align-items: center; gap: 6px; }
-  .budget-label { font-size: 11px; color: var(--text-3); flex-shrink: 0; text-transform: uppercase; letter-spacing: .04em; }
-  .budget-input { flex: 1; padding: 6px 10px; border-radius: 8px; border: 0.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; font-family: inherit; -webkit-appearance: none; }
-  .budget-input:focus { outline: none; border-color: var(--green); }
 </style>
 </head>
 <body>
@@ -183,8 +171,8 @@
 <!-- Add section -->
 <div class="section active" id="sec-add">
   <div class="type-toggle">
-    <button class="type-btn inc" id="btn-inc" onclick="setType('income')">＋ Income</button>
-    <button class="type-btn exp active" id="btn-exp" onclick="setType('expense')">－ Expense</button>
+    <button class="type-btn inc active" id="btn-inc" onclick="setType('income')">＋ Income</button>
+    <button class="type-btn exp" id="btn-exp" onclick="setType('expense')">－ Expense</button>
   </div>
   <div class="card">
     <label class="form-label">Amount (฿)</label>
@@ -206,7 +194,7 @@
       <label class="form-label">Note</label>
       <input class="form-input" type="text" id="fNote" placeholder="Optional">
     </div>
-    <button class="submit-btn exp" id="submitBtn" onclick="submitEntry()">Add Expense</button>
+    <button class="submit-btn inc" id="submitBtn" onclick="submitEntry()">Add Income</button>
   </div>
 </div>
 
@@ -221,19 +209,17 @@
 
 <!-- Summary section -->
 <div class="section" id="sec-summary">
-  <div class="range-toggle">
-    <button class="range-btn" onclick="setSummaryRange('day',this)">Day</button>
-    <button class="range-btn" onclick="setSummaryRange('week',this)">Week</button>
-    <button class="range-btn active" onclick="setSummaryRange('month',this)">Month</button>
-    <button class="range-btn" onclick="setSummaryRange('year',this)">Year</button>
-    <button class="range-btn" onclick="setSummaryRange('ytd',this)">YTD</button>
+  <div class="period-bar">
+    <button class="period-btn" onclick="setPeriod('day')">Day</button>
+    <button class="period-btn" onclick="setPeriod('week')">Week</button>
+    <button class="period-btn active" onclick="setPeriod('month')">Month</button>
+    <button class="period-btn" onclick="setPeriod('year')">Year</button>
+    <button class="period-btn" onclick="setPeriod('ytd')">YTD</button>
   </div>
-  <div class="range-label" id="rangeLabel"></div>
+  <div class="period-label" id="periodLabel"></div>
   <div class="sum-grid" id="sumGrid"></div>
   <div class="section-hdr" style="margin-top:16px"><span class="section-hdr-label">By category</span></div>
   <div class="card" id="catCard"></div>
-  <div class="section-hdr" style="margin-top:16px"><span class="section-hdr-label">Budget</span></div>
-  <div class="card" id="budgetCard"></div>
   <button class="export-btn" onclick="exportCSV()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18"><path d="M12 16L7 11M12 16L17 11M12 16V4M6 20H18" stroke-linecap="round" stroke-linejoin="round"/></svg>
     Export CSV
@@ -351,70 +337,11 @@ const DEFAULT_CATS = {
 const CAT_ICONS = { Salary:'💼', Freelance:'💻', Investment:'📈', Business:'🏢', Food:'🍜', Transport:'🚗', Medical:'🏥', Shopping:'🛍', Utilities:'💡', Entertainment:'🎬', Other:'📌' };
 
 let CATS = loadCats();
-let budgets = loadBudgets();
-let currentType = 'expense';
+let currentType = 'income';
 let editType = 'income';
 let allEntries = [];
 let apiUrl = localStorage.getItem('fin_api_url') || '';
 let currentMonth = '';
-let summaryRange = 'month';
-
-function getSummaryEntries() {
-  const now = new Date();
-  const pad = n => String(n).padStart(2,'0');
-  const toStr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-  const today = toStr(now);
-  let from, to;
-  switch (summaryRange) {
-    case 'day':
-      from = to = today; break;
-    case 'week': {
-      const dow = now.getDay(); // 0=Sun
-      const mon = new Date(now); mon.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
-      const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
-      from = toStr(mon); to = toStr(sun); break;
-    }
-    case 'month':
-      from = `${now.getFullYear()}-${pad(now.getMonth()+1)}-01`; to = today; break;
-    case 'year':
-      from = `${now.getFullYear()}-01-01`; to = `${now.getFullYear()}-12-31`; break;
-    case 'ytd':
-      from = `${now.getFullYear()}-01-01`; to = today; break;
-    default:
-      from = '0000-01-01'; to = '9999-12-31';
-  }
-  return allEntries.filter(e => {
-    const d = (e.Date || e.date || '').slice(0,10);
-    return d >= from && d <= to;
-  });
-}
-
-function getRangeLabel() {
-  const now = new Date();
-  const pad = n => String(n).padStart(2,'0');
-  const toStr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-  const today = toStr(now);
-  switch (summaryRange) {
-    case 'day':  return today;
-    case 'week': {
-      const dow = now.getDay();
-      const mon = new Date(now); mon.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
-      const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
-      return `${toStr(mon)} – ${toStr(sun)}`;
-    }
-    case 'month': return `${now.getFullYear()}-${pad(now.getMonth()+1)}-01 – ${today}`;
-    case 'year':  return String(now.getFullYear());
-    case 'ytd':   return `${now.getFullYear()}-01-01 – ${today}`;
-  }
-  return '';
-}
-
-function setSummaryRange(r, btn) {
-  summaryRange = r;
-  document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  renderSummary();
-}
 
 function loadCats() {
   try {
@@ -425,20 +352,7 @@ function loadCats() {
 }
 function saveCats() { localStorage.setItem('fin_cats', JSON.stringify(CATS)); }
 
-function loadBudgets() {
-  try { const s = localStorage.getItem('fin_budgets'); if (s) return JSON.parse(s); } catch(e) {}
-  return {};
-}
-function saveBudgets() { localStorage.setItem('fin_budgets', JSON.stringify(budgets)); }
-function setBudget(cat, val) {
-  const n = parseFloat(val) || 0;
-  if (n <= 0) delete budgets[cat]; else budgets[cat] = n;
-  saveBudgets();
-  renderSummary();
-}
-
 // Init
-document.body.style.overflow = 'hidden'; // Add tab is default — no scroll
 document.getElementById('fDate').value = todayStr();
 document.getElementById('apiUrl').value = apiUrl;
 populateCats('fCat', currentType);
@@ -703,9 +617,7 @@ function renderEntries() {
 }
 
 function renderSummary() {
-  const labelEl = document.getElementById('rangeLabel');
-  if (labelEl) labelEl.textContent = getRangeLabel();
-  const entries = getSummaryEntries();
+  const entries = filteredEntries(document.getElementById('monthPick').value);
   const inc = entries.filter(e => (e.Type||e.type)==='income').reduce((a,e) => a+Number(e.Amount||e.amount||0), 0);
   const exp = entries.filter(e => (e.Type||e.type)==='expense').reduce((a,e) => a+Number(e.Amount||e.amount||0), 0);
   const bal = inc - exp;
@@ -722,42 +634,15 @@ function renderSummary() {
   const sorted = Object.entries(expCats).sort((a,b) => b[1]-a[1]);
   const maxVal = sorted[0]?.[1] || 1;
   const catCard = document.getElementById('catCard');
-  if (!sorted.length) { catCard.innerHTML = '<div class="empty">No expense data</div>'; }
-  else {
-    catCard.innerHTML = sorted.map(([cat, val]) => `
-      <div class="cat-row">
-        <div class="cat-bar-wrap">
-          <div class="cat-name">${cat}</div>
-          <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${Math.round(val/maxVal*100)}%"></div></div>
-        </div>
-        <div class="cat-amt">${fmt(val)}</div>
-      </div>`).join('');
-  }
-
-  // Budget section
-  const budgetCats = [...new Set([...Object.keys(expCats), ...Object.keys(budgets)])].sort();
-  const budgetCard = document.getElementById('budgetCard');
-  if (!budgetCats.length) { budgetCard.innerHTML = '<div class="empty">No expense data</div>'; return; }
-  budgetCard.innerHTML = budgetCats.map(cat => {
-    const spent = expCats[cat] || 0;
-    const bgt = budgets[cat] || 0;
-    const pct = bgt > 0 ? Math.min(spent / bgt * 100, 100) : 0;
-    const over = bgt > 0 && spent > bgt;
-    const barColor = over ? 'var(--red)' : 'var(--green)';
-    const metaText = bgt > 0 ? `${fmt(spent)} / ${fmt(bgt)}` : fmt(spent);
-    const metaColor = over ? 'var(--red)' : 'var(--text-3)';
-    return `<div class="budget-row">
-      <div class="budget-info">
-        <span class="budget-cat-name">${cat}</span>
-        <span class="budget-meta" style="color:${metaColor}">${metaText}</span>
+  if (!sorted.length) { catCard.innerHTML = '<div class="empty">No expense data</div>'; return; }
+  catCard.innerHTML = sorted.map(([cat, val]) => `
+    <div class="cat-row">
+      <div class="cat-bar-wrap">
+        <div class="cat-name">${cat}</div>
+        <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${Math.round(val/maxVal*100)}%"></div></div>
       </div>
-      ${bgt > 0 ? `<div class="budget-bar-bg"><div class="budget-bar-fill" style="width:${pct.toFixed(1)}%;background:${barColor}"></div></div>` : ''}
-      <div class="budget-input-row">
-        <span class="budget-label">Budget ฿</span>
-        <input class="budget-input" type="number" inputmode="decimal" placeholder="–" value="${bgt || ''}" onchange="setBudget('${cat}',this.value)" onblur="setBudget('${cat}',this.value)">
-      </div>
-    </div>`;
-  }).join('');
+      <div class="cat-amt">${fmt(val)}</div>
+    </div>`).join('');
 }
 
 function exportCSV() {
@@ -772,12 +657,96 @@ function exportCSV() {
   a.click();
 }
 
+let summaryPeriod = 'month';
+
+function setPeriod(p) {
+  summaryPeriod = p;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderSummary();
+}
+
+function periodEntries() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const todayStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+
+  // week: Mon–Sun containing today
+  const day = now.getDay() === 0 ? 6 : now.getDay() - 1; // Mon=0
+  const weekStart = new Date(now); weekStart.setDate(now.getDate() - day);
+  const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 6);
+  const wS = `${weekStart.getFullYear()}-${pad(weekStart.getMonth()+1)}-${pad(weekStart.getDate())}`;
+  const wE = `${weekEnd.getFullYear()}-${pad(weekEnd.getMonth()+1)}-${pad(weekEnd.getDate())}`;
+
+  const thisMonth = `${now.getFullYear()}-${pad(now.getMonth()+1)}`;
+  const thisYear = String(now.getFullYear());
+
+  let label = '';
+  let entries;
+
+  switch (summaryPeriod) {
+    case 'day':
+      label = todayStr;
+      entries = allEntries.filter(e => (e.Date||e.date) === todayStr);
+      break;
+    case 'week':
+      label = `${wS} – ${wE}`;
+      entries = allEntries.filter(e => { const d = e.Date||e.date; return d >= wS && d <= wE; });
+      break;
+    case 'month':
+      label = thisMonth;
+      entries = allEntries.filter(e => (e.Date||e.date||'').startsWith(thisMonth));
+      break;
+    case 'year':
+      label = thisYear;
+      entries = allEntries.filter(e => (e.Date||e.date||'').startsWith(thisYear));
+      break;
+    case 'ytd':
+      label = `${thisYear}-01-01 – ${todayStr}`;
+      entries = allEntries.filter(e => { const d = e.Date||e.date; return d >= `${thisYear}-01-01` && d <= todayStr; });
+      break;
+    default:
+      label = ''; entries = allEntries;
+  }
+
+  document.getElementById('periodLabel').textContent = label;
+  return entries;
+}
+
+function renderSummary() {
+  const entries = periodEntries();
+  const inc = entries.filter(e => (e.Type||e.type)==='income').reduce((a,e) => a+Number(e.Amount||e.amount||0), 0);
+  const exp = entries.filter(e => (e.Type||e.type)==='expense').reduce((a,e) => a+Number(e.Amount||e.amount||0), 0);
+  const bal = inc - exp;
+  document.getElementById('sumGrid').innerHTML = `
+    <div class="sum-card"><div class="sum-card-label">Income</div><div class="sum-card-val" style="color:var(--green)">${fmt(inc)}</div></div>
+    <div class="sum-card"><div class="sum-card-label">Expense</div><div class="sum-card-val" style="color:var(--red)">${fmt(exp)}</div></div>
+    <div class="sum-card"><div class="sum-card-label">Balance</div><div class="sum-card-val" style="color:${bal>=0?'var(--green)':'var(--red)'}">${bal<0?'-':''}${fmt(bal)}</div></div>
+    <div class="sum-card"><div class="sum-card-label">Entries</div><div class="sum-card-val">${entries.length}</div></div>`;
+  const expCats = {};
+  entries.filter(e => (e.Type||e.type)==='expense').forEach(e => {
+    const c = e.Category||e.category;
+    expCats[c] = (expCats[c]||0) + Number(e.Amount||e.amount||0);
+  });
+  const sorted = Object.entries(expCats).sort((a,b) => b[1]-a[1]);
+  const maxVal = sorted[0]?.[1] || 1;
+  const catCard = document.getElementById('catCard');
+  if (!sorted.length) { catCard.innerHTML = '<div class="empty">No expense data</div>'; return; }
+  catCard.innerHTML = sorted.map(([cat, val]) => `
+    <div class="cat-row">
+      <div class="cat-bar-wrap">
+        <div class="cat-name">${cat}</div>
+        <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${Math.round(val/maxVal*100)}%"></div></div>
+      </div>
+      <div class="cat-amt">${fmt(val)}</div>
+    </div>`).join('');
+}
+
 function switchTab(t) {
   ['add','entries','summary','config'].forEach(s => {
     document.getElementById('sec-'+s).classList.toggle('active', s===t);
     document.getElementById('nav-'+s).classList.toggle('active', s===t);
   });
-  document.body.style.overflow = t === 'add' ? 'hidden' : '';
   if (t==='entries') renderEntries();
   if (t==='summary') renderSummary();
   if (t==='config') renderCatManager();
