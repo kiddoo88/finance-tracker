@@ -464,20 +464,22 @@ if (apiUrl) loadEntries();
 // ── Keep bottom nav pinned ─────────────────────────────────
 // Fixes iOS glitch where the fixed bar renders floated up on
 // fresh launch or after the keyboard closes.
+// Only acts on keyboard open/close *transitions* — never during
+// normal scrolling — and restores the previous scroll position.
 const bottomNav = document.querySelector('.bottom-nav');
-function resetViewport() { window.scrollTo(0, 0); }
-window.addEventListener('pageshow', () => setTimeout(resetViewport, 50));
-window.addEventListener('focusout', () => setTimeout(resetViewport, 60));
+window.addEventListener('pageshow', () => setTimeout(() => window.scrollTo(0, 0), 50));
 if (window.visualViewport) {
   const vv = window.visualViewport;
-  const onVVChange = () => {
-    const keyboardOpen = (window.innerHeight - vv.height) > 120;
-    bottomNav.style.opacity = keyboardOpen ? '0' : '';
-    bottomNav.style.pointerEvents = keyboardOpen ? 'none' : '';
-    if (!keyboardOpen) resetViewport();
+  let kbWasOpen = false, preKbScrollY = 0;
+  const onVVResize = () => {
+    const kbOpen = (window.innerHeight - vv.height) > 120;
+    bottomNav.style.opacity = kbOpen ? '0' : '';
+    bottomNav.style.pointerEvents = kbOpen ? 'none' : '';
+    if (kbOpen && !kbWasOpen) preKbScrollY = window.scrollY;      // keyboard just opened — remember position
+    if (!kbOpen && kbWasOpen) window.scrollTo(0, preKbScrollY);   // keyboard just closed — restore it
+    kbWasOpen = kbOpen;
   };
-  vv.addEventListener('resize', onVVChange);
-  vv.addEventListener('scroll', onVVChange);
+  vv.addEventListener('resize', onVVResize);
 }
 
 function todayStr() { const d = new Date(), p = n => String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
