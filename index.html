@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Finance">
@@ -45,7 +45,7 @@
   .bal-val.inc { color: var(--green); }
   .bal-val.exp { color: var(--red); }
 
-  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 0.5px solid var(--border); display: flex; padding-bottom: var(--safe-bottom); z-index: 20; }
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; transform: translateZ(0); background: var(--card); border-top: 0.5px solid var(--border); display: flex; padding-bottom: var(--safe-bottom); z-index: 20; }
   .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 8px; border: none; background: none; cursor: pointer; gap: 3px; color: var(--text-3); font-size: 10px; font-weight: 500; letter-spacing: .02em; }
   .nav-btn svg { width: 22px; height: 22px; stroke-width: 1.7; }
   .nav-btn.active { color: var(--green); }
@@ -118,13 +118,6 @@
   .config-note b { color: var(--text-2); }
   .export-btn { width: 100%; margin-top: 14px; padding: 13px; border-radius: 12px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-  /* Period selector */
-  .period-bar { display: flex; gap: 6px; margin-top: 14px; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-  .period-bar::-webkit-scrollbar { display: none; }
-  .period-btn { flex-shrink: 0; padding: 7px 16px; border-radius: 20px; border: 0.5px solid var(--border); background: var(--card); color: var(--text-2); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; white-space: nowrap; }
-  .period-btn.active { background: var(--green); color: white; border-color: var(--green); }
-  .period-label { font-size: 12px; color: var(--text-3); text-align: center; margin-top: 6px; margin-bottom: 2px; }
-
   /* ===== MODAL ===== */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 150; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity .2s; }
   .modal-overlay.open { opacity: 1; pointer-events: all; }
@@ -150,6 +143,30 @@
   .add-cat-type button { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: none; color: var(--text-2); font-size: 13px; font-weight: 500; cursor: pointer; }
   .add-cat-type button.active-inc { background: var(--green-bg); color: var(--green); border-color: var(--green); }
   .add-cat-type button.active-exp { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+
+  /* ===== RANGE TOGGLE ===== */
+  .range-toggle { display: flex; gap: 4px; margin-top: 12px; background: var(--card); border-radius: 10px; padding: 4px; border: 0.5px solid var(--border); }
+  .range-btn { flex: 1; padding: 7px 2px; border-radius: 7px; border: none; background: none; font-size: 13px; font-weight: 500; color: var(--text-2); cursor: pointer; transition: all .15s; }
+  .range-btn.active { background: var(--green); color: white; font-weight: 600; }
+  .range-label { font-size: 12px; color: var(--text-3); text-align: center; margin-top: 6px; margin-bottom: 2px; min-height: 16px; }
+
+  /* ===== BUDGET ===== */
+  .budget-row { padding: 11px 0; border-bottom: 0.5px solid var(--border); }
+  .budget-row:last-child { border-bottom: none; }
+  .budget-info { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+  .budget-cat-name { font-size: 14px; font-weight: 500; }
+  .budget-meta { font-size: 12px; color: var(--text-3); }
+  .budget-bar-bg { height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 6px; }
+  .budget-bar-fill { height: 6px; border-radius: 3px; transition: width .4s; min-width: 2px; }
+  .budget-input-row { display: flex; align-items: center; gap: 6px; }
+  .budget-label { font-size: 11px; color: var(--text-3); flex-shrink: 0; text-transform: uppercase; letter-spacing: .04em; }
+  .budget-input { flex: 1; padding: 6px 10px; border-radius: 8px; border: 0.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; font-family: inherit; -webkit-appearance: none; }
+  .budget-input:focus { outline: none; border-color: var(--green); }
+  .day-hdr { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .05em; padding: 14px 0 3px; }
+  .day-hdr:first-child { padding-top: 0; }
+  .day-hdr .day-net { text-transform: none; letter-spacing: 0; }
+  .undo-btn { background: none; border: none; color: #7fd4ff; font-weight: 700; font-size: 14px; margin-left: 12px; cursor: pointer; padding: 0; }
+  .search-input { margin-top: 10px; padding: 9px 12px; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -171,8 +188,8 @@
 <!-- Add section -->
 <div class="section active" id="sec-add">
   <div class="type-toggle">
-    <button class="type-btn inc active" id="btn-inc" onclick="setType('income')">＋ Income</button>
-    <button class="type-btn exp" id="btn-exp" onclick="setType('expense')">－ Expense</button>
+    <button class="type-btn inc" id="btn-inc" onclick="setType('income')">＋ Income</button>
+    <button class="type-btn exp active" id="btn-exp" onclick="setType('expense')">－ Expense</button>
   </div>
   <div class="card">
     <label class="form-label">Amount (฿)</label>
@@ -194,7 +211,7 @@
       <label class="form-label">Note</label>
       <input class="form-input" type="text" id="fNote" placeholder="Optional">
     </div>
-    <button class="submit-btn inc" id="submitBtn" onclick="submitEntry()">Add Income</button>
+    <button class="submit-btn exp" id="submitBtn" onclick="submitEntry()">Add Expense</button>
   </div>
 </div>
 
@@ -204,22 +221,25 @@
     <span class="section-hdr-label">Entries</span>
     <select class="month-pick" id="eFilt" onchange="renderEntries()" style="font-size:13px"></select>
   </div>
+  <input class="form-input search-input" type="search" id="eSearch" placeholder="🔍 Search category, note, date…" oninput="renderEntries()">
   <div class="card" id="entriesCard"><div class="empty">Loading…</div></div>
 </div>
 
 <!-- Summary section -->
 <div class="section" id="sec-summary">
-  <div class="period-bar">
-    <button class="period-btn" onclick="setPeriod('day')">Day</button>
-    <button class="period-btn" onclick="setPeriod('week')">Week</button>
-    <button class="period-btn active" onclick="setPeriod('month')">Month</button>
-    <button class="period-btn" onclick="setPeriod('year')">Year</button>
-    <button class="period-btn" onclick="setPeriod('ytd')">YTD</button>
+  <div class="range-toggle">
+    <button class="range-btn" onclick="setSummaryRange('day',this)">Day</button>
+    <button class="range-btn" onclick="setSummaryRange('week',this)">Week</button>
+    <button class="range-btn active" onclick="setSummaryRange('month',this)">Month</button>
+    <button class="range-btn" onclick="setSummaryRange('year',this)">Year</button>
+    <button class="range-btn" onclick="setSummaryRange('ytd',this)">YTD</button>
   </div>
-  <div class="period-label" id="periodLabel"></div>
+  <div class="range-label" id="rangeLabel"></div>
   <div class="sum-grid" id="sumGrid"></div>
   <div class="section-hdr" style="margin-top:16px"><span class="section-hdr-label">By category</span></div>
   <div class="card" id="catCard"></div>
+  <div class="section-hdr" style="margin-top:16px"><span class="section-hdr-label">Budget · This month</span></div>
+  <div class="card" id="budgetCard"></div>
   <button class="export-btn" onclick="exportCSV()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18"><path d="M12 16L7 11M12 16L17 11M12 16V4M6 20H18" stroke-linecap="round" stroke-linejoin="round"/></svg>
     Export CSV
@@ -337,11 +357,70 @@ const DEFAULT_CATS = {
 const CAT_ICONS = { Salary:'💼', Freelance:'💻', Investment:'📈', Business:'🏢', Food:'🍜', Transport:'🚗', Medical:'🏥', Shopping:'🛍', Utilities:'💡', Entertainment:'🎬', Other:'📌' };
 
 let CATS = loadCats();
-let currentType = 'income';
+let budgets = loadBudgets();
+let currentType = 'expense';
 let editType = 'income';
 let allEntries = [];
 let apiUrl = localStorage.getItem('fin_api_url') || '';
 let currentMonth = '';
+let summaryRange = 'month';
+
+function getSummaryEntries() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const toStr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const today = toStr(now);
+  let from, to;
+  switch (summaryRange) {
+    case 'day':
+      from = to = today; break;
+    case 'week': {
+      const dow = now.getDay(); // 0=Sun
+      const mon = new Date(now); mon.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
+      const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+      from = toStr(mon); to = toStr(sun); break;
+    }
+    case 'month':
+      from = `${now.getFullYear()}-${pad(now.getMonth()+1)}-01`; to = today; break;
+    case 'year':
+      from = `${now.getFullYear()}-01-01`; to = `${now.getFullYear()}-12-31`; break;
+    case 'ytd':
+      from = `${now.getFullYear()}-01-01`; to = today; break;
+    default:
+      from = '0000-01-01'; to = '9999-12-31';
+  }
+  return allEntries.filter(e => {
+    const d = (e.Date || e.date || '').slice(0,10);
+    return d >= from && d <= to;
+  });
+}
+
+function getRangeLabel() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const toStr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const today = toStr(now);
+  switch (summaryRange) {
+    case 'day':  return today;
+    case 'week': {
+      const dow = now.getDay();
+      const mon = new Date(now); mon.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
+      const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+      return `${toStr(mon)} – ${toStr(sun)}`;
+    }
+    case 'month': return `${now.getFullYear()}-${pad(now.getMonth()+1)}-01 – ${today}`;
+    case 'year':  return String(now.getFullYear());
+    case 'ytd':   return `${now.getFullYear()}-01-01 – ${today}`;
+  }
+  return '';
+}
+
+function setSummaryRange(r, btn) {
+  summaryRange = r;
+  document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderSummary();
+}
 
 function loadCats() {
   try {
@@ -352,16 +431,70 @@ function loadCats() {
 }
 function saveCats() { localStorage.setItem('fin_cats', JSON.stringify(CATS)); }
 
+function loadBudgets() {
+  try { const s = localStorage.getItem('fin_budgets'); if (s) return JSON.parse(s); } catch(e) {}
+  return {};
+}
+function saveBudgets() { localStorage.setItem('fin_budgets', JSON.stringify(budgets)); }
+function setBudget(catEnc, val) {
+  const cat = decodeURIComponent(catEnc);
+  const n = parseFloat(val) || 0;
+  if (n <= 0) delete budgets[cat]; else budgets[cat] = n;
+  saveBudgets();
+  renderSummary();
+}
+
 // Init
+document.body.style.overflow = 'hidden'; // Add tab is default — no scroll
 document.getElementById('fDate').value = todayStr();
 document.getElementById('apiUrl').value = apiUrl;
 populateCats('fCat', currentType);
+// Offline cache: render last-known data instantly while fresh data loads
+try {
+  const cached = JSON.parse(localStorage.getItem('fin_cache') || '[]');
+  if (Array.isArray(cached) && cached.length) allEntries = cached;
+} catch(e) {}
 buildMonthPickers();
+updateHeader();
+renderEntries();
+renderSummary();
 renderCatManager();
 if (apiUrl) loadEntries();
 
-function todayStr() { return new Date().toISOString().slice(0,10); }
+// ── Keep bottom nav pinned ─────────────────────────────────
+// Fixes iOS glitch where the fixed bar renders floated up on
+// fresh launch or after the keyboard closes.
+const bottomNav = document.querySelector('.bottom-nav');
+function resetViewport() { window.scrollTo(0, 0); }
+window.addEventListener('pageshow', () => setTimeout(resetViewport, 50));
+window.addEventListener('focusout', () => setTimeout(resetViewport, 60));
+if (window.visualViewport) {
+  const vv = window.visualViewport;
+  const onVVChange = () => {
+    const keyboardOpen = (window.innerHeight - vv.height) > 120;
+    bottomNav.style.opacity = keyboardOpen ? '0' : '';
+    bottomNav.style.pointerEvents = keyboardOpen ? 'none' : '';
+    if (!keyboardOpen) resetViewport();
+  };
+  vv.addEventListener('resize', onVVChange);
+  vv.addEventListener('scroll', onVVChange);
+}
+
+function todayStr() { const d = new Date(), p = n => String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
 function fmt(n) { return '฿' + Math.abs(n).toLocaleString('th-TH', { maximumFractionDigits: 0 }); }
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function cacheEntries() { try { localStorage.setItem('fin_cache', JSON.stringify(allEntries)); } catch(e) {} }
+function fmtDay(d) {
+  const p = n => String(n).padStart(2,'0');
+  const now = new Date();
+  const today = `${now.getFullYear()}-${p(now.getMonth()+1)}-${p(now.getDate())}`;
+  const yd = new Date(now); yd.setDate(now.getDate()-1);
+  const yesterday = `${yd.getFullYear()}-${p(yd.getMonth()+1)}-${p(yd.getDate())}`;
+  if (d === today) return 'Today';
+  if (d === yesterday) return 'Yesterday';
+  const dt = new Date(d + 'T00:00:00');
+  return isNaN(dt) ? d : dt.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+}
 
 function setType(t) {
   currentType = t;
@@ -383,7 +516,7 @@ function setEditType(t) {
 
 function populateCats(selId, type, selectedVal) {
   const sel = document.getElementById(selId);
-  sel.innerHTML = CATS[type].map(c => `<option${selectedVal===c?' selected':''}>${c}</option>`).join('');
+  sel.innerHTML = CATS[type].map(c => `<option${selectedVal===c?' selected':''}>${esc(c)}</option>`).join('');
 }
 
 // Custom category management
@@ -401,7 +534,8 @@ function addCustomCat(type) {
   showToast('✅ Category added');
 }
 
-function deleteCat(type, cat) {
+function deleteCat(type, catEnc) {
+  const cat = decodeURIComponent(catEnc);
   const defaults = DEFAULT_CATS[type];
   if (defaults.includes(cat)) { showToast('Cannot delete default category'); return; }
   CATS[type] = CATS[type].filter(c => c !== cat);
@@ -418,7 +552,7 @@ function renderCatManager() {
     if (!el) return;
     el.innerHTML = CATS[type].map(c => {
       const isDefault = DEFAULT_CATS[type].includes(c);
-      return `<span class="cat-tag ${type}-tag">${c}${isDefault ? '' : `<button class="cat-tag-del" onclick="deleteCat('${type}','${c}')">×</button>`}</span>`;
+      return `<span class="cat-tag ${type}-tag">${esc(c)}${isDefault ? '' : `<button class="cat-tag-del" onclick="deleteCat('${type}','${encodeURIComponent(c)}')">×</button>`}</span>`;
     }).join('');
   });
 }
@@ -433,6 +567,7 @@ function openAddCatModal(type) {
 
 function showToast(msg, dur=2000) {
   const t = document.getElementById('toast');
+  t.style.pointerEvents = 'none';
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(t._timer);
@@ -461,7 +596,8 @@ async function loadEntries() {
   showToast('Loading…', 10000);
   const data = await apiCall('GET');
   if (!data || !data.ok) { showToast('❌ Failed to load'); return; }
-  allEntries = (data.data || []).filter(e => e.ID);
+  allEntries = (data.data || []).filter(e => e.ID).reverse(); // newest sheet rows first
+  cacheEntries();
   buildMonthPickers();
   updateHeader();
   renderEntries();
@@ -486,6 +622,7 @@ async function submitEntry() {
     entry.ID = res.id; entry.Amount = amt; entry.Date = entry.date;
     entry.Type = entry.type; entry.Category = entry.category; entry.Note = entry.note;
     allEntries.unshift(entry);
+    cacheEntries();
     document.getElementById('fAmount').value = '';
     document.getElementById('fNote').value = '';
     buildMonthPickers(); updateHeader(); renderEntries(); renderSummary();
@@ -533,21 +670,46 @@ async function saveEdit() {
     if (idx !== -1) {
       allEntries[idx] = { ...allEntries[idx], Date: updated.date, Type: updated.type, Category: updated.category, Amount: updated.amount, Note: updated.note };
     }
+    cacheEntries();
     closeModal();
     buildMonthPickers(); updateHeader(); renderEntries(); renderSummary();
     showToast('✅ Updated!');
   }
 }
 
-async function deleteEntry(id) {
-  if (!confirm('Delete this entry?')) return;
-  showToast('Deleting…', 10000);
-  const res = await apiCall('POST', { action: 'delete', id: String(id) });
-  if (res && res.ok) {
-    allEntries = allEntries.filter(e => String(e.ID) !== String(id));
-    updateHeader(); renderEntries(); renderSummary();
-    showToast('🗑 Deleted');
-  }
+// Delete with 5-second Undo (optimistic: server delete is committed after the toast)
+let undoTimer = null, undoEntry = null;
+
+function deleteEntry(id) {
+  if (undoEntry) commitDelete(); // commit any previous pending delete first
+  const idx = allEntries.findIndex(x => String(x.ID||x.id) === String(id));
+  if (idx === -1) return;
+  undoEntry = allEntries.splice(idx, 1)[0];
+  updateHeader(); renderEntries(); renderSummary(); cacheEntries();
+  const t = document.getElementById('toast');
+  t.innerHTML = `🗑 Deleted <button class="undo-btn" onclick="undoDelete()">Undo</button>`;
+  t.style.pointerEvents = 'auto';
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  clearTimeout(undoTimer);
+  undoTimer = setTimeout(commitDelete, 5000);
+}
+
+function undoDelete() {
+  clearTimeout(undoTimer);
+  if (undoEntry) { allEntries.push(undoEntry); undoEntry = null; }
+  const t = document.getElementById('toast');
+  t.classList.remove('show'); t.style.pointerEvents = 'none';
+  updateHeader(); renderEntries(); renderSummary(); cacheEntries();
+}
+
+async function commitDelete() {
+  const t = document.getElementById('toast');
+  t.classList.remove('show'); t.style.pointerEvents = 'none';
+  if (!undoEntry) return;
+  const entry = undoEntry; undoEntry = null;
+  const res = await apiCall('POST', { action: 'delete', id: String(entry.ID || entry.id) });
+  if (!(res && res.ok)) { showToast('❌ Delete failed — reloading'); loadEntries(); }
 }
 
 function buildMonthPickers() {
@@ -593,31 +755,52 @@ function updateHeader() {
 
 function renderEntries() {
   const m = document.getElementById('eFilt').value;
-  const list = filteredEntries(m);
+  const q = (document.getElementById('eSearch')?.value || '').trim().toLowerCase();
+  let list = filteredEntries(m).slice()
+    .sort((a,b) => String(b.Date||b.date||'').localeCompare(String(a.Date||a.date||'')));
+  if (q) list = list.filter(e =>
+    `${e.Category||e.category||''} ${e.Note||e.note||''} ${e.Date||e.date||''} ${e.Amount||e.amount||''}`.toLowerCase().includes(q));
   const card = document.getElementById('entriesCard');
-  if (!list.length) { card.innerHTML = '<div class="empty">No entries</div>'; return; }
-  card.innerHTML = list.map(e => {
-    const t = e.Type||e.type, cat = e.Category||e.category;
-    const note = e.Note||e.note, amt = Number(e.Amount||e.amount||0);
-    const date = e.Date||e.date, id = e.ID||e.id;
-    const icon = CAT_ICONS[cat] || '💰';
-    return `<div class="entry-item">
-      <div class="entry-icon ${t==='income'?'inc':'exp'}">${icon}</div>
-      <div class="entry-info">
-        <div class="entry-cat">${cat}${note?' · '+note:''}</div>
-        <div class="entry-sub">${date}</div>
-      </div>
-      <div class="entry-amt ${t==='income'?'inc':'exp'}" style="flex-shrink:0">${t==='income'?'+':'-'}${fmt(amt)}</div>
-      <div class="entry-actions">
-        <button class="edit-btn" onclick="openEditModal('${id}')">Edit</button>
-        <button class="del-btn" onclick="deleteEntry('${id}')">Del</button>
-      </div>
-    </div>`;
+  if (!list.length) { card.innerHTML = `<div class="empty">${q ? 'No results' : 'No entries'}</div>`; return; }
+
+  // Group by day (list is already sorted newest-first)
+  const groups = new Map();
+  list.forEach(e => {
+    const d = String(e.Date||e.date||'').slice(0,10);
+    if (!groups.has(d)) groups.set(d, []);
+    groups.get(d).push(e);
+  });
+
+  card.innerHTML = [...groups.entries()].map(([d, items]) => {
+    const net = items.reduce((a,e) => a + ((e.Type||e.type)==='income' ? 1 : -1) * Number(e.Amount||e.amount||0), 0);
+    return `<div class="day-hdr"><span>${fmtDay(d)}</span><span class="day-net" style="color:${net<0?'var(--red)':'var(--green)'}">${net<0?'-':'+'}${fmt(net)}</span></div>`
+      + items.map(entryHTML).join('');
   }).join('');
 }
 
+function entryHTML(e) {
+  const t = e.Type||e.type, cat = e.Category||e.category;
+  const note = e.Note||e.note, amt = Number(e.Amount||e.amount||0);
+  const id = e.ID||e.id;
+  const icon = CAT_ICONS[cat] || '💰';
+  return `<div class="entry-item">
+    <div class="entry-icon ${t==='income'?'inc':'exp'}">${icon}</div>
+    <div class="entry-info">
+      <div class="entry-cat">${esc(cat)}</div>
+      ${note ? `<div class="entry-sub">${esc(note)}</div>` : ''}
+    </div>
+    <div class="entry-amt ${t==='income'?'inc':'exp'}" style="flex-shrink:0">${t==='income'?'+':'-'}${fmt(amt)}</div>
+    <div class="entry-actions">
+      <button class="edit-btn" onclick="openEditModal('${esc(id)}')">Edit</button>
+      <button class="del-btn" onclick="deleteEntry('${esc(id)}')">Del</button>
+    </div>
+  </div>`;
+}
+
 function renderSummary() {
-  const entries = filteredEntries(document.getElementById('monthPick').value);
+  const labelEl = document.getElementById('rangeLabel');
+  if (labelEl) labelEl.textContent = getRangeLabel();
+  const entries = getSummaryEntries();
   const inc = entries.filter(e => (e.Type||e.type)==='income').reduce((a,e) => a+Number(e.Amount||e.amount||0), 0);
   const exp = entries.filter(e => (e.Type||e.type)==='expense').reduce((a,e) => a+Number(e.Amount||e.amount||0), 0);
   const bal = inc - exp;
@@ -634,15 +817,47 @@ function renderSummary() {
   const sorted = Object.entries(expCats).sort((a,b) => b[1]-a[1]);
   const maxVal = sorted[0]?.[1] || 1;
   const catCard = document.getElementById('catCard');
-  if (!sorted.length) { catCard.innerHTML = '<div class="empty">No expense data</div>'; return; }
-  catCard.innerHTML = sorted.map(([cat, val]) => `
-    <div class="cat-row">
-      <div class="cat-bar-wrap">
-        <div class="cat-name">${cat}</div>
-        <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${Math.round(val/maxVal*100)}%"></div></div>
+  if (!sorted.length) { catCard.innerHTML = '<div class="empty">No expense data</div>'; }
+  else {
+    catCard.innerHTML = sorted.map(([cat, val]) => `
+      <div class="cat-row">
+        <div class="cat-bar-wrap">
+          <div class="cat-name">${esc(cat)}</div>
+          <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${Math.round(val/maxVal*100)}%"></div></div>
+        </div>
+        <div class="cat-amt">${fmt(val)}</div>
+      </div>`).join('');
+  }
+
+  // Budget section — always tracks the current calendar month, regardless of range
+  const bNow = new Date(), bPad = n => String(n).padStart(2,'0');
+  const ym = `${bNow.getFullYear()}-${bPad(bNow.getMonth()+1)}`;
+  const monthExp = {};
+  allEntries.filter(e => (e.Type||e.type)==='expense' && String(e.Date||e.date||'').startsWith(ym))
+    .forEach(e => { const c = e.Category||e.category; monthExp[c] = (monthExp[c]||0) + Number(e.Amount||e.amount||0); });
+  const budgetCats = [...new Set([...Object.keys(monthExp), ...Object.keys(budgets)])].sort();
+  const budgetCard = document.getElementById('budgetCard');
+  if (!budgetCats.length) { budgetCard.innerHTML = '<div class="empty">No expense data</div>'; return; }
+  budgetCard.innerHTML = budgetCats.map(cat => {
+    const spent = monthExp[cat] || 0;
+    const bgt = budgets[cat] || 0;
+    const pct = bgt > 0 ? Math.min(spent / bgt * 100, 100) : 0;
+    const over = bgt > 0 && spent > bgt;
+    const barColor = over ? 'var(--red)' : 'var(--green)';
+    const metaText = bgt > 0 ? `${fmt(spent)} / ${fmt(bgt)}` : fmt(spent);
+    const metaColor = over ? 'var(--red)' : 'var(--text-3)';
+    return `<div class="budget-row">
+      <div class="budget-info">
+        <span class="budget-cat-name">${esc(cat)}</span>
+        <span class="budget-meta" style="color:${metaColor}">${metaText}</span>
       </div>
-      <div class="cat-amt">${fmt(val)}</div>
-    </div>`).join('');
+      ${bgt > 0 ? `<div class="budget-bar-bg"><div class="budget-bar-fill" style="width:${pct.toFixed(1)}%;background:${barColor}"></div></div>` : ''}
+      <div class="budget-input-row">
+        <span class="budget-label">Budget ฿</span>
+        <input class="budget-input" type="number" inputmode="decimal" placeholder="–" value="${bgt || ''}" onchange="setBudget('${encodeURIComponent(cat)}',this.value)" onblur="setBudget('${encodeURIComponent(cat)}',this.value)">
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function exportCSV() {
@@ -657,96 +872,12 @@ function exportCSV() {
   a.click();
 }
 
-let summaryPeriod = 'month';
-
-function setPeriod(p) {
-  summaryPeriod = p;
-  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-  renderSummary();
-}
-
-function periodEntries() {
-  const now = new Date();
-  const pad = n => String(n).padStart(2,'0');
-  const todayStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
-
-  // week: Mon–Sun containing today
-  const day = now.getDay() === 0 ? 6 : now.getDay() - 1; // Mon=0
-  const weekStart = new Date(now); weekStart.setDate(now.getDate() - day);
-  const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 6);
-  const wS = `${weekStart.getFullYear()}-${pad(weekStart.getMonth()+1)}-${pad(weekStart.getDate())}`;
-  const wE = `${weekEnd.getFullYear()}-${pad(weekEnd.getMonth()+1)}-${pad(weekEnd.getDate())}`;
-
-  const thisMonth = `${now.getFullYear()}-${pad(now.getMonth()+1)}`;
-  const thisYear = String(now.getFullYear());
-
-  let label = '';
-  let entries;
-
-  switch (summaryPeriod) {
-    case 'day':
-      label = todayStr;
-      entries = allEntries.filter(e => (e.Date||e.date) === todayStr);
-      break;
-    case 'week':
-      label = `${wS} – ${wE}`;
-      entries = allEntries.filter(e => { const d = e.Date||e.date; return d >= wS && d <= wE; });
-      break;
-    case 'month':
-      label = thisMonth;
-      entries = allEntries.filter(e => (e.Date||e.date||'').startsWith(thisMonth));
-      break;
-    case 'year':
-      label = thisYear;
-      entries = allEntries.filter(e => (e.Date||e.date||'').startsWith(thisYear));
-      break;
-    case 'ytd':
-      label = `${thisYear}-01-01 – ${todayStr}`;
-      entries = allEntries.filter(e => { const d = e.Date||e.date; return d >= `${thisYear}-01-01` && d <= todayStr; });
-      break;
-    default:
-      label = ''; entries = allEntries;
-  }
-
-  document.getElementById('periodLabel').textContent = label;
-  return entries;
-}
-
-function renderSummary() {
-  const entries = periodEntries();
-  const inc = entries.filter(e => (e.Type||e.type)==='income').reduce((a,e) => a+Number(e.Amount||e.amount||0), 0);
-  const exp = entries.filter(e => (e.Type||e.type)==='expense').reduce((a,e) => a+Number(e.Amount||e.amount||0), 0);
-  const bal = inc - exp;
-  document.getElementById('sumGrid').innerHTML = `
-    <div class="sum-card"><div class="sum-card-label">Income</div><div class="sum-card-val" style="color:var(--green)">${fmt(inc)}</div></div>
-    <div class="sum-card"><div class="sum-card-label">Expense</div><div class="sum-card-val" style="color:var(--red)">${fmt(exp)}</div></div>
-    <div class="sum-card"><div class="sum-card-label">Balance</div><div class="sum-card-val" style="color:${bal>=0?'var(--green)':'var(--red)'}">${bal<0?'-':''}${fmt(bal)}</div></div>
-    <div class="sum-card"><div class="sum-card-label">Entries</div><div class="sum-card-val">${entries.length}</div></div>`;
-  const expCats = {};
-  entries.filter(e => (e.Type||e.type)==='expense').forEach(e => {
-    const c = e.Category||e.category;
-    expCats[c] = (expCats[c]||0) + Number(e.Amount||e.amount||0);
-  });
-  const sorted = Object.entries(expCats).sort((a,b) => b[1]-a[1]);
-  const maxVal = sorted[0]?.[1] || 1;
-  const catCard = document.getElementById('catCard');
-  if (!sorted.length) { catCard.innerHTML = '<div class="empty">No expense data</div>'; return; }
-  catCard.innerHTML = sorted.map(([cat, val]) => `
-    <div class="cat-row">
-      <div class="cat-bar-wrap">
-        <div class="cat-name">${cat}</div>
-        <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${Math.round(val/maxVal*100)}%"></div></div>
-      </div>
-      <div class="cat-amt">${fmt(val)}</div>
-    </div>`).join('');
-}
-
 function switchTab(t) {
   ['add','entries','summary','config'].forEach(s => {
     document.getElementById('sec-'+s).classList.toggle('active', s===t);
     document.getElementById('nav-'+s).classList.toggle('active', s===t);
   });
+  document.body.style.overflow = t === 'add' ? 'hidden' : '';
   if (t==='entries') renderEntries();
   if (t==='summary') renderSummary();
   if (t==='config') renderCatManager();
