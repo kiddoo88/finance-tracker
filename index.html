@@ -37,6 +37,10 @@
      nav bar up when the toolbar collapses or the keyboard appears. */
   body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: var(--bg); color: var(--text);
          position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; overflow: hidden; }
+  /* While the keyboard is up the nav is unreachable anyway — remove it
+     from layout so it can never be seen hovering mid-screen. */
+  body.kb-open .bottom-nav { display: none; }
+  body.kb-open .header { display: none; }
 
   .scroller { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
 
@@ -83,7 +87,7 @@
   .submit-btn.inc { background: var(--green); color: white; }
   .submit-btn.exp { background: var(--red); color: white; }
 
-  .toast { position: fixed; bottom: calc(var(--safe-bottom) + var(--kb, 0px) + 78px); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 500; opacity: 0; transition: opacity .2s; z-index: 200; white-space: nowrap; pointer-events: none; }
+  .toast { position: absolute; bottom: calc(var(--safe-bottom) + 78px); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 500; opacity: 0; transition: opacity .2s; z-index: 200; white-space: nowrap; pointer-events: none; }
   .toast.show { opacity: 1; }
 
   .entry-item { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 0.5px solid var(--border); }
@@ -126,7 +130,7 @@
   .export-btn { width: 100%; margin-top: 14px; padding: 13px; border-radius: 12px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
   /* ===== MODAL ===== */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 150; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); z-index: 150; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity .2s; }
   .modal-overlay.open { opacity: 1; pointer-events: all; }
   .modal { background: var(--card); border-radius: 20px 20px 0 0; padding: 20px 20px calc(20px + var(--safe-bottom)); width: 100%; transform: translateY(100%); transition: transform .25s cubic-bezier(.32,.72,0,1); max-height: 90dvh; overflow-y: auto; }
   .modal-overlay.open .modal { transform: translateY(0); }
@@ -487,25 +491,33 @@ renderSummary();
 renderCatManager();
 if (apiUrl) loadEntries();
 
-// ── On-screen keyboard handling ────────────────────────────
-// The shell can't drift any more, so all that's left is making
-// room for the keyboard: shrink the scroller by the keyboard
-// height and keep the focused field visible.
+// ── Pin the shell to the visual viewport ───────────────────
+// iOS does NOT shrink the layout viewport when the keyboard opens,
+// so a full-height shell keeps its bottom edge behind the keyboard
+// and the nav bar appears to hover. Sizing the shell to
+// visualViewport (height + offsetTop) keeps it exactly on screen.
 const scrollerEl = document.getElementById('scroller');
 if (window.visualViewport) {
   const vv = window.visualViewport;
-  const applyKb = () => {
-    const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-    document.documentElement.style.setProperty('--kb', kb + 'px');
-    scrollerEl.style.paddingBottom = kb ? kb + 'px' : '';
+  let raf = null;
+  const fitShell = () => {
+    const b = document.body;
+    b.style.height = vv.height + 'px';
+    b.style.top    = vv.offsetTop + 'px';
+    b.style.bottom = 'auto';
+    b.classList.toggle('kb-open', (window.innerHeight - vv.height) > 150);
   };
-  vv.addEventListener('resize', applyKb);
-  applyKb();
+  const schedule = () => { if (raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(fitShell); };
+  vv.addEventListener('resize', schedule);
+  vv.addEventListener('scroll', schedule);
+  window.addEventListener('orientationchange', () => setTimeout(fitShell, 300));
+  window.addEventListener('pageshow', schedule);
+  fitShell();
 }
-// Keep the focused input above the keyboard
+// Keep the focused field visible above the keyboard
 document.addEventListener('focusin', e => {
   if (!e.target.matches('input, select, textarea')) return;
-  setTimeout(() => e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300);
+  setTimeout(() => e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }), 320);
 });
 
 function todayStr() { const d = new Date(), p = n => String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
