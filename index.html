@@ -36,8 +36,7 @@
      Nothing uses position:fixed for the chrome, so iOS can never float the
      nav bar up when the toolbar collapses or the keyboard appears. */
   body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: var(--card); color: var(--text);
-         position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; overflow: hidden;
-         height: 100%; height: 100dvh; height: -webkit-fill-available; }
+         position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; overflow: hidden; }
   /* While the keyboard is up the nav is unreachable anyway — remove it
      from layout so it can never be seen hovering mid-screen. */
   body.kb-open .bottom-nav { display: none; }
@@ -504,21 +503,6 @@ if (apiUrl) loadEntries();
 const scrollerEl = document.getElementById('scroller');
 let kbBlurTimer = null;
 
-// ── iOS standalone (Add to Home Screen) fix ────────────────
-// When the keyboard opens, iOS scrolls the *document* to reveal the
-// focused field. The shell is position:fixed, so that scroll drags it
-// upward and leaves a gap below the nav bar.
-// Nothing in the document is scrollable any more (all scrolling lives
-// inside .scroller), so snapping the window back to 0 cancels the drift
-// without affecting content scrolling.
-function pinWindow() { if (window.pageYOffset !== 0) window.scrollTo(0, 0); }
-window.addEventListener('scroll', pinWindow, { passive: true });
-window.addEventListener('resize', pinWindow);
-if (window.visualViewport) {
-  window.visualViewport.addEventListener('scroll', pinWindow);
-  window.visualViewport.addEventListener('resize', pinWindow);
-}
-pinWindow();
 
 function setKb(open) {
   clearTimeout(kbBlurTimer);
@@ -529,18 +513,11 @@ function setKb(open) {
 document.addEventListener('focusin', e => {
   if (!e.target.matches('input, select, textarea')) return;
   setKb(true);
-  // iOS shifts the document during the keyboard animation — keep pinning
-  // for its duration rather than once at the end.
-  [0, 50, 120, 200, 300, 450, 650].forEach(ms => setTimeout(pinWindow, ms));
-  setTimeout(() => {
-    try { e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch(_) {}
-    pinWindow();
-  }, 320);
+  setTimeout(() => { try { e.target.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch(_) {} }, 300);
 });
 document.addEventListener('focusout', e => {
   if (!e.target.matches('input, select, textarea')) return;
   setKb(false);
-  [0, 100, 250, 400, 600].forEach(ms => setTimeout(pinWindow, ms));
 });
 
 // Give the scroller room so the focused field is never trapped under
