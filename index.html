@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Finance">
@@ -31,7 +31,7 @@
     }
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html { height: 100%; }
+  html { height: 100%; overflow: hidden; background: var(--card); overscroll-behavior: none; }
   /* App-shell: body is a non-scrolling fixed frame; only .scroller scrolls.
      Nothing uses position:fixed for the chrome, so iOS can never float the
      nav bar up when the toolbar collapses or the keyboard appears. */
@@ -40,7 +40,6 @@
   /* While the keyboard is up the nav is unreachable anyway — remove it
      from layout so it can never be seen hovering mid-screen. */
   body.kb-open .bottom-nav { display: none; }
-  body.kb-open .header { display: none; }
 
   .scroller { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
 
@@ -57,6 +56,9 @@
   .bal-val.exp { color: var(--red); }
 
   .bottom-nav { flex: 0 0 auto; background: var(--card); border-top: 0.5px solid var(--border); display: flex; padding-bottom: var(--safe-bottom); z-index: 20; }
+  /* Paints over any sliver iOS may expose below the shell */
+  .bottom-nav::after { content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 120px; background: var(--card); }
+  .bottom-nav { position: relative; }
   .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 8px; border: none; background: none; cursor: pointer; gap: 3px; color: var(--text-3); font-size: 10px; font-weight: 500; letter-spacing: .02em; }
   .nav-btn svg { width: 22px; height: 22px; stroke-width: 1.7; }
   .nav-btn.active { color: var(--green); }
@@ -491,34 +493,66 @@ renderSummary();
 renderCatManager();
 if (apiUrl) loadEntries();
 
-// ── Pin the shell to the visual viewport ───────────────────
-// iOS does NOT shrink the layout viewport when the keyboard opens,
-// so a full-height shell keeps its bottom edge behind the keyboard
-// and the nav bar appears to hover. Sizing the shell to
-// visualViewport (height + offsetTop) keeps it exactly on screen.
+// ── Keyboard handling ──────────────────────────────────────
+// The shell itself is never moved or resized by script — moving a
+// position:fixed element while the browser is animating the keyboard
+// is what shows up as a drifting bar.
+//
+// Instead: whenever a field is focused the nav is taken out of layout
+// entirely. A bar that isn't rendered cannot float. Focus events are
+// used rather than visualViewport because every browser reports
+// keyboard geometry differently, but focus is always reliable.
 const scrollerEl = document.getElementById('scroller');
+let kbBlurTimer = null;
+
+// ── iOS standalone (Add to Home Screen) fix ────────────────
+// When the keyboard opens, iOS scrolls the *document* to reveal the
+// focused field. The shell is position:fixed, so that scroll drags it
+// upward and leaves a gap below the nav bar.
+// Nothing in the document is scrollable any more (all scrolling lives
+// inside .scroller), so snapping the window back to 0 cancels the drift
+// without affecting content scrolling.
+function pinWindow() { if (window.pageYOffset !== 0) window.scrollTo(0, 0); }
+window.addEventListener('scroll', pinWindow, { passive: true });
+window.addEventListener('resize', pinWindow);
 if (window.visualViewport) {
-  const vv = window.visualViewport;
-  let raf = null;
-  const fitShell = () => {
-    const b = document.body;
-    b.style.height = vv.height + 'px';
-    b.style.top    = vv.offsetTop + 'px';
-    b.style.bottom = 'auto';
-    b.classList.toggle('kb-open', (window.innerHeight - vv.height) > 150);
-  };
-  const schedule = () => { if (raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(fitShell); };
-  vv.addEventListener('resize', schedule);
-  vv.addEventListener('scroll', schedule);
-  window.addEventListener('orientationchange', () => setTimeout(fitShell, 300));
-  window.addEventListener('pageshow', schedule);
-  fitShell();
+  window.visualViewport.addEventListener('scroll', pinWindow);
+  window.visualViewport.addEventListener('resize', pinWindow);
 }
-// Keep the focused field visible above the keyboard
+pinWindow();
+
+function setKb(open) {
+  clearTimeout(kbBlurTimer);
+  if (open) { document.body.classList.add('kb-open'); }
+  else { kbBlurTimer = setTimeout(() => document.body.classList.remove('kb-open'), 120); }
+}
+
 document.addEventListener('focusin', e => {
   if (!e.target.matches('input, select, textarea')) return;
-  setTimeout(() => e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }), 320);
+  setKb(true);
+  // iOS shifts the document during the keyboard animation — keep pinning
+  // for its duration rather than once at the end.
+  [0, 50, 120, 200, 300, 450, 650].forEach(ms => setTimeout(pinWindow, ms));
+  setTimeout(() => {
+    try { e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch(_) {}
+    pinWindow();
+  }, 320);
 });
+document.addEventListener('focusout', e => {
+  if (!e.target.matches('input, select, textarea')) return;
+  setKb(false);
+  [0, 100, 250, 400, 600].forEach(ms => setTimeout(pinWindow, ms));
+});
+
+// Give the scroller room so the focused field is never trapped under
+// the keyboard. This only pads content — it never moves the shell.
+if (window.visualViewport) {
+  const vv = window.visualViewport;
+  vv.addEventListener('resize', () => {
+    const kb = Math.max(0, window.innerHeight - vv.height);
+    scrollerEl.style.paddingBottom = kb > 150 ? kb + 'px' : '';
+  });
+}
 
 function todayStr() { const d = new Date(), p = n => String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
 function fmt(n) { return '฿' + Math.abs(n).toLocaleString('th-TH', { maximumFractionDigits: 0 }); }
