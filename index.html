@@ -41,7 +41,8 @@
      from layout so it can never be seen hovering mid-screen. */
   body.kb-open .bottom-nav { display: none; }
 
-  .scroller { background: var(--bg); flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+  .scroller { background: var(--bg); flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+              padding-bottom: calc(62px + max(var(--safe-bottom), 6px)); }
 
   .header { background: var(--card); padding: calc(14px + var(--safe-top)) 20px 14px; border-bottom: 0.5px solid var(--border); flex: 0 0 auto; z-index: 10; }
   .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
@@ -55,7 +56,7 @@
   .bal-val.inc { color: var(--green); }
   .bal-val.exp { color: var(--red); }
 
-  .bottom-nav { flex: 0 0 auto; background: var(--card); border-top: 0.5px solid var(--border); display: flex; padding-bottom: max(var(--safe-bottom), 6px); z-index: 20; }
+  .bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 0.5px solid var(--border); display: flex; padding-bottom: max(var(--safe-bottom), 6px); z-index: 20; }
 
   .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 8px; border: none; background: none; cursor: pointer; gap: 3px; color: var(--text-3); font-size: 10px; font-weight: 500; letter-spacing: .02em; }
   .nav-btn svg { width: 22px; height: 22px; stroke-width: 1.7; }
@@ -87,7 +88,7 @@
   .submit-btn.inc { background: var(--green); color: white; }
   .submit-btn.exp { background: var(--red); color: white; }
 
-  .toast { position: absolute; bottom: calc(var(--safe-bottom) + 78px); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 500; opacity: 0; transition: opacity .2s; z-index: 200; white-space: nowrap; pointer-events: none; }
+  .toast { position: fixed; bottom: calc(max(var(--safe-bottom), 6px) + 78px); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 500; opacity: 0; transition: opacity .2s; z-index: 200; white-space: nowrap; pointer-events: none; }
   .toast.show { opacity: 1; }
 
   .entry-item { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 0.5px solid var(--border); }
