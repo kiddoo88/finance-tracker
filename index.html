@@ -94,6 +94,9 @@
   .entry-actions { display: flex; gap: 6px; flex-shrink: 0; }
   .edit-btn { background: var(--green-bg); border: none; color: var(--green); font-size: 13px; font-weight: 600; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
   .del-btn { background: var(--red-bg); border: none; color: var(--red); font-size: 13px; font-weight: 600; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
+  .day-hdr { display: flex; align-items: center; gap: 10px; padding: 16px 0 5px; color: var(--text-3); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  .day-hdr:first-child { padding-top: 0; }
+  .day-hdr::after { content: ''; height: 0.5px; flex: 1; background: var(--border); }
 
   .section-hdr { display: flex; align-items: center; justify-content: space-between; margin: 16px 0 0; }
   .section-hdr-label { font-size: 13px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .05em; }
@@ -727,19 +730,46 @@ function updateHeader() {
 
 function renderEntries() {
   const m = document.getElementById('eFilt').value;
-  const list = filteredEntries(m);
+  const list = filteredEntries(m).slice().sort((a, b) =>
+    String(b.Date || b.date || '').localeCompare(String(a.Date || a.date || ''))
+  );
   const card = document.getElementById('entriesCard');
   if (!list.length) { card.innerHTML = '<div class="empty">No entries</div>'; return; }
-  card.innerHTML = list.map(e => {
+
+  const groups = new Map();
+  list.forEach(entry => {
+    const day = String(entry.Date || entry.date || '').slice(0, 10);
+    if (!groups.has(day)) groups.set(day, []);
+    groups.get(day).push(entry);
+  });
+
+  card.innerHTML = [...groups.entries()].map(([day, entries]) =>
+    `<div class="day-hdr"><span>${esc(formatEntryDay(day))}</span></div>` + entries.map(entryHTML).join('')
+  ).join('');
+}
+
+function formatEntryDay(day) {
+  const today = todayStr();
+  const yesterdayDate = new Date();
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  const p = n => String(n).padStart(2, '0');
+  const yesterday = `${yesterdayDate.getFullYear()}-${p(yesterdayDate.getMonth() + 1)}-${p(yesterdayDate.getDate())}`;
+  if (day === today) return 'Today';
+  if (day === yesterday) return 'Yesterday';
+  const date = new Date(day + 'T00:00:00');
+  return Number.isNaN(date.getTime()) ? day : date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function entryHTML(e) {
     const t = e.Type||e.type, cat = e.Category||e.category;
     const note = e.Note||e.note, amt = Number(e.Amount||e.amount||0);
-    const date = e.Date||e.date, id = e.ID||e.id;
+    const id = e.ID||e.id;
     const icon = CAT_ICONS[cat] || '💰';
     return `<div class="entry-item">
       <div class="entry-icon ${t==='income'?'inc':'exp'}">${icon}</div>
       <div class="entry-info">
-        <div class="entry-cat">${esc(cat)}${note?' · '+esc(note):''}</div>
-        <div class="entry-sub">${esc(date)}</div>
+        <div class="entry-cat">${esc(cat)}</div>
+        ${note ? `<div class="entry-sub">${esc(note)}</div>` : ''}
       </div>
       <div class="entry-amt ${t==='income'?'inc':'exp'}" style="flex-shrink:0">${t==='income'?'+':'-'}${fmt(amt)}</div>
       <div class="entry-actions">
@@ -747,7 +777,6 @@ function renderEntries() {
         <button class="del-btn" data-entry-action="delete" data-entry-id="${encodeData(id)}">Del</button>
       </div>
     </div>`;
-  }).join('');
 }
 
 function renderSummary() {
