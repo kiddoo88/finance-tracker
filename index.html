@@ -45,7 +45,8 @@
   .bal-val.inc { color: var(--green); }
   .bal-val.exp { color: var(--red); }
 
-  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 0.5px solid var(--border); display: flex; padding-bottom: var(--safe-bottom); z-index: 20; }
+  .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 0.5px solid var(--border); display: flex; padding-bottom: var(--safe-bottom); visibility: hidden; z-index: 20; }
+  .bottom-nav.is-positioned { position: fixed; visibility: visible; }
   .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 8px; border: none; background: none; cursor: pointer; gap: 3px; color: var(--text-3); font-size: 10px; font-weight: 500; letter-spacing: .02em; }
   .nav-btn svg { width: 22px; height: 22px; stroke-width: 1.7; }
   .nav-btn.active { color: var(--green); }
@@ -456,6 +457,9 @@ populateCats('fCat', currentType);
 buildMonthPickers();
 renderCatManager();
 if (apiUrl) loadEntries();
+
+// Wait for iOS to settle its initial viewport before fixing the bottom bar.
+setTimeout(() => document.querySelector('.bottom-nav').classList.add('is-positioned'), 500);
 
 document.addEventListener('click', event => {
   const entryButton = event.target.closest('[data-entry-action]');
