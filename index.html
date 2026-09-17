@@ -587,7 +587,7 @@ async function apiCall(method, body) {
 async function loadEntries() {
   showToast('Loading…', 10000);
   const data = await apiCall('POST', { action: 'getAll' });
-  if (!data || !data.ok) { showToast('❌ Failed to load'); return; }
+  if (!data || !data.ok) { showToast(`❌ ${data?.error || 'Failed to load'}`, 6000); return; }
   allEntries = (data.data || []).filter(e => e.ID);
   buildMonthPickers();
   updateHeader();
