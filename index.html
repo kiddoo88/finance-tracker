@@ -22,6 +22,7 @@
     --radius: 14px;
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --bottom-nav-top: 772px;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -45,8 +46,7 @@
   .bal-val.inc { color: var(--green); }
   .bal-val.exp { color: var(--red); }
 
-  .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 0.5px solid var(--border); display: flex; padding-bottom: var(--safe-bottom); visibility: hidden; z-index: 20; }
-  .bottom-nav.is-positioned { position: fixed; bottom: auto; visibility: visible; }
+  .bottom-nav { position: fixed; top: var(--bottom-nav-top); bottom: auto; left: 0; right: 0; background: var(--card); border-top: 0.5px solid var(--border); display: flex; padding-bottom: var(--safe-bottom); z-index: 20; }
   .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 8px; border: none; background: none; cursor: pointer; gap: 3px; color: var(--text-3); font-size: 10px; font-weight: 500; letter-spacing: .02em; }
   .nav-btn svg { width: 22px; height: 22px; stroke-width: 1.7; }
   .nav-btn.active { color: var(--green); }
@@ -460,6 +460,7 @@ if (apiUrl) loadEntries();
 
 // Wait for iOS to settle its initial viewport, then place the bar explicitly.
 function positionBottomNav() {
+  return;
   const nav = document.querySelector('.bottom-nav');
   const viewport = window.visualViewport;
   const visibleTop = viewport ? viewport.offsetTop : 0;
