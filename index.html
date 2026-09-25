@@ -29,17 +29,14 @@
       --bg: #0f0f0e; --card: #1c1c1a; --border: rgba(255,255,255,0.1);
       --green-bg: #0a2a1e; --red-bg: #2a0d0d;
     }
-    .bottom-nav { background: linear-gradient(180deg, rgba(18,18,18,0.10) 0%, rgba(5,5,5,0.42) 58%, rgba(0,0,0,0.74) 100%); border-color: rgba(255,255,255,0.10); box-shadow: 0 14px 38px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.10), inset 0 -1px 0 rgba(255,255,255,0.025); }
-    .bottom-nav::before { background: radial-gradient(ellipse at 18% 0%, rgba(255,255,255,0.10), rgba(255,255,255,0) 44%), linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0) 48%); }
-    .nav-btn.active { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.14); box-shadow: inset 0 1px 0 rgba(255,255,255,0.11); }
+
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: var(--bg); color: var(--text); }
-  .app-shell { height: var(--app-height, 100svh); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; padding-top: var(--safe-top); overflow: hidden; }
-  .app-content { min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; scroll-padding: 16px; max-height: var(--content-visible-height, none); }
-  .nav-dock { padding: 8px 8px max(8px, calc(var(--safe-bottom) - 16px)); }
-  .keyboard-open .nav-dock { visibility: hidden; pointer-events: none; }
+  .app-shell { height: var(--app-height, 100svh); display: grid; grid-template-rows: auto auto minmax(0, 1fr); padding-top: var(--safe-top); overflow: hidden; }
+  .app-content { min-height: 0; padding-bottom: var(--safe-bottom); overflow-y: auto; overscroll-behavior-y: contain; scroll-padding: 16px; max-height: var(--content-visible-height, none); }
+  .top-tabs { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 12px; }
 
   .header { background: var(--card); padding: 16px 20px 14px; border-bottom: 0.5px solid var(--border); z-index: 10; }
   .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
@@ -53,12 +50,12 @@
   .bal-val.inc { color: var(--green); }
   .bal-val.exp { color: var(--red); }
 
-  .bottom-nav { position: relative; display: flex; padding: 6px 4px; background: linear-gradient(180deg, rgba(18,18,18,0.10) 0%, rgba(5,5,5,0.42) 58%, rgba(0,0,0,0.74) 100%); border: 1px solid rgba(255,255,255,0.10); border-radius: 24px; box-shadow: 0 14px 38px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.10), inset 0 -1px 0 rgba(255,255,255,0.025); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); overflow: hidden; isolation: isolate; z-index: 20; }
-  .bottom-nav::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 18% 0%, rgba(255,255,255,0.10), rgba(255,255,255,0) 44%), linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0) 48%); pointer-events: none; z-index: -1; }
-  .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 54px; margin: 0 2px; padding: 7px 0 6px; border: 1px solid transparent; border-radius: 17px; background: transparent; cursor: pointer; gap: 3px; color: rgba(255,255,255,0.68); font-size: 10px; font-weight: 600; letter-spacing: .02em; transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s ease; }
-  .nav-btn svg { width: 22px; height: 22px; stroke-width: 1.8; }
-  .nav-btn.active { color: rgba(255,255,255,0.98); background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.14); box-shadow: inset 0 1px 0 rgba(255,255,255,0.11); }
-  .nav-btn:active { transform: scale(0.94); }
+  .tab-bar { display: flex; gap: 4px; }
+  .nav-btn { flex: 1; min-width: 0; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 8px 2px; border: none; border-bottom: 2px solid transparent; background: transparent; color: var(--text-2); font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer; }
+  .nav-btn svg { width: 16px; height: 16px; stroke-width: 1.8; flex-shrink: 0; }
+  .nav-btn.active { color: var(--green); border-bottom-color: var(--green); font-weight: 600; }
+  .nav-btn:active { background: var(--green-bg); }
+  .nav-btn:focus-visible { outline: 2px solid var(--green); outline-offset: -3px; }
 
   .section { display: none; padding: 0 16px 16px; }
   .section.active { display: block; }
@@ -195,6 +192,29 @@
   </div>
 </div>
 
+<!-- Compact navigation below the balance banner -->
+<nav class="top-tabs" aria-label="Main navigation">
+<div class="tab-bar">
+  <button class="nav-btn active" id="nav-add" onclick="switchTab('add')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8" stroke-linecap="round"/></svg>
+    Add
+  </button>
+  <button class="nav-btn" id="nav-entries" onclick="switchTab('entries')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-linecap="round"/></svg>
+    Entries
+  </button>
+  <button class="nav-btn" id="nav-summary" onclick="switchTab('summary')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-linecap="round"/></svg>
+    Summary
+  </button>
+  <button class="nav-btn" id="nav-config" onclick="switchTab('config')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke-linecap="round"/></svg>
+    Setup
+  </button>
+</div>
+
+</nav>
+
 <!-- Add section -->
 <main class="app-content" id="appContent">
 <div class="section active" id="sec-add">
@@ -300,32 +320,10 @@
   </div>
 </div>
 
-<!-- Bottom Nav -->
-<!-- Keep the dock in a separate grid row, outside the scrolling content. -->
 </main>
-<nav class="nav-dock" aria-label="Main navigation">
-<div class="bottom-nav">
-  <button class="nav-btn active" id="nav-add" onclick="switchTab('add')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8" stroke-linecap="round"/></svg>
-    Add
-  </button>
-  <button class="nav-btn" id="nav-entries" onclick="switchTab('entries')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-linecap="round"/></svg>
-    Entries
-  </button>
-  <button class="nav-btn" id="nav-summary" onclick="switchTab('summary')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-linecap="round"/></svg>
-    Summary
-  </button>
-  <button class="nav-btn" id="nav-config" onclick="switchTab('config')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke-linecap="round"/></svg>
-    Setup
-  </button>
 </div>
 
 <!-- Edit Modal -->
-</nav>
-</div>
 <div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -474,7 +472,7 @@ renderCatManager();
 if (apiUrl) loadEntries();
 
 // Preserve the app's full height when a keyboard shrinks the visual viewport.
-// Only the content's visible scrolling area shrinks; the dock never rides up.
+// Only the content's visible scrolling area shrinks; header and tabs keep their rows.
 const appShell = document.getElementById('appShell');
 const appContent = document.getElementById('appContent');
 let appHeight = 0;
