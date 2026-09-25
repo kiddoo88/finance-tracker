@@ -38,7 +38,7 @@
   body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: var(--bg); color: var(--text); }
   .app-shell { height: var(--app-height, 100svh); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; padding-top: var(--safe-top); overflow: hidden; }
   .app-content { min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; scroll-padding: 16px; max-height: var(--content-visible-height, none); }
-  .nav-dock { padding: 8px 8px calc(8px + var(--safe-bottom)); }
+  .nav-dock { padding: 8px 8px max(8px, calc(var(--safe-bottom) - 16px)); }
   .keyboard-open .nav-dock { visibility: hidden; pointer-events: none; }
 
   .header { background: var(--card); padding: 16px 20px 14px; border-bottom: 0.5px solid var(--border); z-index: 10; }
